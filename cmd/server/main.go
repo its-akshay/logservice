@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/logservice/internal/handler"
+)
 
 func main() {
-	fmt.Println("Server starting")
+	r:=gin.Default()
+	r.GET("/healthz", handler.HealthHandler)
+	r.Run(":8080")
 }
