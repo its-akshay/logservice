@@ -2,9 +2,13 @@ package main
 
 import (
 	"log"
+	"net"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
+	pb "github.com/logservice/github.com/logservice/pkg/proto"
+	grpcServer "github.com/logservice/internal/grpc"
 	"github.com/logservice/internal/handler"
 	"github.com/logservice/internal/repo"
 )
@@ -22,12 +26,38 @@ func main() {
 		log.Fatal(err)
 	}
 
-
 	_ = db
 
 	// 3. Setup router
 	r := gin.Default()
 	r.GET("/healthz", handler.HealthHandler)
+	logRepo := repo.NewPostgresRepo(db)
+
+	go func() {
+		lis, err := net.Listen("tcp", ":50051")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		grpcSrv := grpc.NewServer()
+
+		pb.RegisterLogServiceServer(
+			grpcSrv,
+			grpcServer.NewServer(logRepo),
+		)
+
+		log.Println("gRPC server running on :50051")
+
+		if err := grpcSrv.Serve(lis); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	logHandler := handler.NewLogHandler(logRepo)
+
+	r.POST("/logs", logHandler.CreateLogs)
+	r.POST("/logs/batch", logHandler.CreateLogsBatch)
+	r.GET("/logs/search", logHandler.SearchLogs)
 
 	// 4. Start server
 	if err := r.Run(":8080"); err != nil {

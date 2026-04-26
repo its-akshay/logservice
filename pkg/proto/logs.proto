@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/logservice/pkg/proto";
+
+message LogEntry {
+  string id = 1;
+  string level = 2;
+  string service = 3;
+  string message = 4;
+  string created_at = 5;
+}
+
+message IngestRequest {
+  string level = 1;
+  string service = 2;
+  string message = 3;
+}
+
+message QueryRequest {
+  string level = 1;
+  string service = 2;
+  string regex = 3;
+  int32 limit = 4;
+}
+
+service LogService {
+  rpc IngestLog(IngestRequest) returns (LogEntry);
+  rpc QueryLogs(QueryRequest) returns (stream LogEntry);
+}

@@ -21,5 +21,9 @@ func (l*Log) BeforeCreate(tx *gorm.DB) (err error){
 	}
 	return
 }
-
+type CreateLogRequest struct {
+	Level   string `json:"level"`
+	Service string `json:"service"`
+	Message string `json:"message"`
+}
 // defined a Log model with UUID primary key, indexed fields for querying, and a BeforeCreate hook to ensure IDs are generated automatically
