@@ -6,7 +6,8 @@ build:
 
 run: build
 	./bin/$(BINARY)
-
+run:
+	set DATABASE_URL=postgres://loguser:secret@localhost:5432/logdb?sslmode=disable&& go run cmd/server/main.go
 test:
 	go test ./... -v
 
