@@ -18,6 +18,16 @@ func NewLogHandler(r repo.LogRepository) *LogHandler {
 	return &LogHandler{repo: r}
 }
 
+// CreateLogs godoc
+// @Summary Create a new log
+// @Description Insert a log entry
+// @Tags logs
+// @Accept json
+// @Produce json
+// @Param log body model.CreateLogRequest true "Log input"
+// @Success 201 {object} model.Log
+// @Failure 400 {object} map[string]string
+// @Router /logs [post]
 func (h *LogHandler) CreateLogs(c *gin.Context) {
 	var req model.CreateLogRequest
 
@@ -43,6 +53,18 @@ func (h *LogHandler) CreateLogs(c *gin.Context) {
 	c.JSON(http.StatusCreated, log)
 }
 
+
+// CreateLogsBatch godoc
+// @Summary Create logs in batch
+// @Description Insert multiple log entries (max 500)
+// @Tags logs
+// @Accept json
+// @Produce json
+// @Param logs body []model.CreateLogRequest true "List of logs"
+// @Success 201 {array} model.Log
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /logs/batch [post]
 func (h *LogHandler) CreateLogsBatch(c *gin.Context) {
 	var reqs []model.CreateLogRequest
 
@@ -84,6 +106,17 @@ func (h *LogHandler) CreateLogsBatch(c *gin.Context) {
 	c.JSON(201, logs)
 }
 
+// SearchLogs godoc
+// @Summary Search logs
+// @Description Filter logs by level/service/regex
+// @Tags logs
+// @Produce json
+// @Param level query string false "Log level"
+// @Param service query string false "Service name"
+// @Param regex query string false "Regex filter"
+// @Param limit query int false "Limit"
+// @Success 200 {array} model.Log
+// @Router /logs/search [get]
 func (h *LogHandler) SearchLogs(c *gin.Context) {
 	regexStr := c.Query("regex")
 	level := c.Query("level")

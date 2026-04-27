@@ -11,8 +11,15 @@ import (
 	grpcServer "github.com/logservice/internal/grpc"
 	"github.com/logservice/internal/handler"
 	"github.com/logservice/internal/repo"
+	swaggerFiles "github.com/swaggo/files"
+    ginSwagger "github.com/swaggo/gin-swagger"
+    _ "github.com/logservice/docs"
 )
-
+// @title Log Service API
+// @version 1.0
+// @description Logging service with REST + gRPC
+// @host localhost:8080
+// @BasePath /
 func main() {
 	// 1. Read DSN
 	dsn := os.Getenv("DATABASE_URL")
@@ -58,6 +65,7 @@ func main() {
 	r.POST("/logs", logHandler.CreateLogs)
 	r.POST("/logs/batch", logHandler.CreateLogsBatch)
 	r.GET("/logs/search", logHandler.SearchLogs)
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 4. Start server
 	if err := r.Run(":8080"); err != nil {
