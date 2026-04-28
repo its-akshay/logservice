@@ -6,15 +6,16 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"google.golang.org/grpc"
+	_ "github.com/logservice/docs"
 	pb "github.com/logservice/github.com/logservice/pkg/proto"
 	grpcServer "github.com/logservice/internal/grpc"
 	"github.com/logservice/internal/handler"
 	"github.com/logservice/internal/repo"
 	swaggerFiles "github.com/swaggo/files"
-    ginSwagger "github.com/swaggo/gin-swagger"
-    _ "github.com/logservice/docs"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"google.golang.org/grpc"
 )
+
 // @title Log Service API
 // @version 1.0
 // @description Logging service with REST + gRPC
