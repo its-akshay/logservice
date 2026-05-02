@@ -3,6 +3,8 @@ package repo
 import (
 	"context"
 	"errors"
+	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/logservice/internal/model"
@@ -61,4 +63,32 @@ func (p *postgresRepo) List(ctx context.Context, f Filter) ([]model.Log, error) 
 }
 func (p *postgresRepo) Insert(ctx context.Context, log *model.Log) error {
 	return p.db.WithContext(ctx).Create(log).Error
+}
+
+func (p *postgresRepo) CreateUser(user *model.User) error {
+	user.ID = uuid.New()
+	user.CreatedAt = time.Now()
+
+	err := p.db.Create(user).Error
+	if err != nil {
+		if strings.Contains(err.Error(), "duplicate key") {
+			return errors.New("user already exists")
+		}
+		return err
+	}
+	return nil
+}
+
+func (p *postgresRepo) GetByUsername(username string) (*model.User, error) {
+	var user model.User
+
+	err := p.db.First(&user, "username = ?", username).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
+	}
+
+	return &user, nil
 }

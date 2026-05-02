@@ -9,6 +9,13 @@ definitions:
       service:
         type: string
     type: object
+  model.ErrorResponse:
+    properties:
+      code:
+        type: string
+      error:
+        type: string
+    type: object
   model.Log:
     properties:
       created_at:
@@ -22,6 +29,36 @@ definitions:
       service:
         type: string
     type: object
+  model.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  model.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  model.RegisterRequest:
+    properties:
+      password:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - role
+    - username
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -29,6 +66,88 @@ info:
   title: Log Service API
   version: "1.0"
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate and return JWT tokens
+      parameters:
+      - description: Login body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Generate new access token using refresh token
+      parameters:
+      - description: Refresh body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create new user account
+      parameters:
+      - description: Register body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Register user
+      tags:
+      - auth
   /logs:
     post:
       consumes:
