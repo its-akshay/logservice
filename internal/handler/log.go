@@ -24,10 +24,11 @@ func NewLogHandler(r repo.LogRepository) *LogHandler {
 // @Tags logs
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param log body model.CreateLogRequest true "Log input"
 // @Success 201 {object} model.Log
 // @Failure 400 {object} map[string]string
-// @Router /logs [post]
+// @Router /api/v1/logs [post]
 func (h *LogHandler) CreateLogs(c *gin.Context) {
 	var req model.CreateLogRequest
 
@@ -60,11 +61,12 @@ func (h *LogHandler) CreateLogs(c *gin.Context) {
 // @Tags logs
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param logs body []model.CreateLogRequest true "List of logs"
 // @Success 201 {array} model.Log
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /logs/batch [post]
+// @Router /api/v1/logs/batch [post]
 func (h *LogHandler) CreateLogsBatch(c *gin.Context) {
 	var reqs []model.CreateLogRequest
 
@@ -111,12 +113,13 @@ func (h *LogHandler) CreateLogsBatch(c *gin.Context) {
 // @Description Filter logs by level/service/regex
 // @Tags logs
 // @Produce json
+// @Security BearerAuth
 // @Param level query string false "Log level"
 // @Param service query string false "Service name"
 // @Param regex query string false "Regex filter"
 // @Param limit query int false "Limit"
 // @Success 200 {array} model.Log
-// @Router /logs/search [get]
+// @Router /api/v1/logs/search [get]
 func (h *LogHandler) SearchLogs(c *gin.Context) {
 	regexStr := c.Query("regex")
 	level := c.Query("level")

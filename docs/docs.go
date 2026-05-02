@@ -15,6 +15,171 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/logs": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Insert a log entry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logs"
+                ],
+                "summary": "Create a new log",
+                "parameters": [
+                    {
+                        "description": "Log input",
+                        "name": "log",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateLogRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Log"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/logs/batch": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Insert multiple log entries (max 500)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logs"
+                ],
+                "summary": "Create logs in batch",
+                "parameters": [
+                    {
+                        "description": "List of logs",
+                        "name": "logs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.CreateLogRequest"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Log"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/logs/search": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Filter logs by level/service/regex",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logs"
+                ],
+                "summary": "Search logs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Log level",
+                        "name": "level",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Service name",
+                        "name": "service",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Regex filter",
+                        "name": "regex",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Log"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Authenticate and return JWT tokens",
@@ -140,156 +305,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/logs": {
-            "post": {
-                "description": "Insert a log entry",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "logs"
-                ],
-                "summary": "Create a new log",
-                "parameters": [
-                    {
-                        "description": "Log input",
-                        "name": "log",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.CreateLogRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/model.Log"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/logs/batch": {
-            "post": {
-                "description": "Insert multiple log entries (max 500)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "logs"
-                ],
-                "summary": "Create logs in batch",
-                "parameters": [
-                    {
-                        "description": "List of logs",
-                        "name": "logs",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.CreateLogRequest"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Log"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/logs/search": {
-            "get": {
-                "description": "Filter logs by level/service/regex",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "logs"
-                ],
-                "summary": "Search logs",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Log level",
-                        "name": "level",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Service name",
-                        "name": "service",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Regex filter",
-                        "name": "regex",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Limit",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Log"
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -382,6 +397,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

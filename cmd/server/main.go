@@ -14,6 +14,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"google.golang.org/grpc"
+	 "github.com/logservice/internal/middleware"
 )
 
 // @title Log Service API
@@ -21,6 +22,10 @@ import (
 // @description Logging service with REST + gRPC
 // @host localhost:8080
 // @BasePath /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	// 1. Read DSN
 	dsn := os.Getenv("DATABASE_URL")
@@ -63,9 +68,12 @@ func main() {
 		}
 	}()
 
-	r.POST("/logs", logHandler.CreateLogs)
-	r.POST("/logs/batch", logHandler.CreateLogsBatch)
-	r.GET("/logs/search", logHandler.SearchLogs)
+	api := r.Group("/api/v1")
+	api.Use(middleware.AuthMiddleware())
+
+	api.POST("/logs", logHandler.CreateLogs)
+	api.POST("/logs/batch", logHandler.CreateLogsBatch)
+	api.GET("/logs/search", logHandler.SearchLogs)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	userRepo := logRepo
