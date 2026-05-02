@@ -17,7 +17,7 @@ func NewDB(dsn string) (*gorm.DB, error) {
 	for i := 1; i <= maxAttempts; i++ {
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err == nil {
-			if err := db.AutoMigrate(&model.Log{}); err != nil {
+			if err := db.AutoMigrate(&model.Log{}, &model.User{}); err != nil {
 				return nil, fmt.Errorf("migration failed: %w", err)
 			}
 			return db, nil

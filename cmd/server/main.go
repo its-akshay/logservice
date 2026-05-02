@@ -34,12 +34,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	_ = db
+	repo.SeedUsers(db)
 
 	// 3. Setup router
 	r := gin.Default()
 	r.GET("/healthz", handler.HealthHandler)
 	logRepo := repo.NewPostgresRepo(db)
+	
 
 	go func() {
 		lis, err := net.Listen("tcp", ":50051")
