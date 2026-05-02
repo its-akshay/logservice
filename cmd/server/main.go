@@ -1,15 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	_ "github.com/logservice/docs"
 	pb "github.com/logservice/github.com/logservice/pkg/proto"
 	grpcServer "github.com/logservice/internal/grpc"
 	"github.com/logservice/internal/handler"
+	"github.com/logservice/internal/model"
 	"github.com/logservice/internal/repo"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -40,8 +43,9 @@ func main() {
 	r := gin.Default()
 	r.GET("/healthz", handler.HealthHandler)
 	logRepo := repo.NewPostgresRepo(db)
-	
+	logHandler := handler.NewLogHandler(logRepo)
 
+	// Start gRPC server in a separate goroutine
 	go func() {
 		lis, err := net.Listen("tcp", ":50051")
 		if err != nil {
@@ -62,7 +66,16 @@ func main() {
 		}
 	}()
 
-	logHandler := handler.NewLogHandler(logRepo)
+	user := model.User {
+		ID:       uuid.New(), // make sure uuid is imported
+		Username: "akshay",
+		Role:     "admin",
+	}
+	access, _ := repo.GenerateAccessToken(user)
+	refresh, _ := repo.GenerateRefreshToken(user)
+
+	fmt.Println("Access:", access)
+	fmt.Println("Refresh:", refresh)
 
 	r.POST("/logs", logHandler.CreateLogs)
 	r.POST("/logs/batch", logHandler.CreateLogsBatch)
